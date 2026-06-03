@@ -1,0 +1,152 @@
+// VerifyIQ — Prisma Schema
+// apps/api/prisma/schema.prisma
+// PostgreSQL 16 + Row-Level Security + DPDP/PCI-DSS compliance
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Organization (multi-tenant root) ────────────────────────────────────────
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  apiKeys  ApiKey[]
+  requests VerificationRequest[]
+
+  @@map("organizations")
+}
+
+// ─── API Keys ─────────────────────────────────────────────────────────────────
+
+model ApiKey {
+  id        String    @id @default(cuid())
+  /// sha256(rawKey + API_KEY_SALT) — raw key NEVER stored
+  hashedKey String    @unique
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id])
+  /// req/min
+  rateLimit Int       @default(100)
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  name      String?
+
+  @@index([orgId])
+  @@map("api_keys")
+}
+
+// ─── Verification Request ────────────────────────────────────────────────────
+
+model VerificationRequest {
+  id           String       @id @default(cuid())
+  orgId        String
+  org          Organization @relation(fields: [orgId], references: [id])
+
+  documentType String       // CREDIT_CARD | PASSPORT | AADHAAR | VOTER_ID | DRIVING_LICENCE
+  status       String       @default("PROCESSING")  // PROCESSING | APPROVED | REJECTED | MANUAL_REVIEW
+  riskScore    Float?
+  verdict      String?      // APPROVED | REJECTED | MANUAL_REVIEW
+
+  /// S3/MinIO path — auto-deleted after TTL
+  imagePath    String?
+  imageDeletedAt DateTime?
+
+  submittedAt  DateTime     @default(now())
+  resolvedAt   DateTime?
+  /// Soft delete
+  deletedAt    DateTime?
+
+  result    VerificationResult?
+  auditLogs AuditLog[]
+  fraudFlags FraudFlag[]
+
+  @@index([orgId, submittedAt(sort: Desc)])
+  @@index([status, submittedAt])
+  @@map("verification_requests")
+}
+
+// ─── Verification Result ─────────────────────────────────────────────────────
+
+model VerificationResult {
+  id        String              @id @default(cuid())
+  requestId String              @unique
+  request   VerificationRequest @relation(fields: [requestId], references: [id])
+
+  /// Full CheckDetail[] array as JSONB
+  checksJson    Json
+  /// Full FraudReasoning object as JSONB
+  reasoningJson Json
+  /// Extracted fields — PII encrypted at column level (pgcrypto in prod)
+  extractedJson Json
+  /// Which ONNX model version scored this
+  modelVersion  String
+  processingTimeMs Int
+
+  createdAt DateTime @default(now())
+
+  @@map("verification_results")
+}
+
+// ─── Fraud Flags ─────────────────────────────────────────────────────────────
+
+model FraudFlag {
+  id          String              @id @default(cuid())
+  requestId   String
+  request     VerificationRequest @relation(fields: [requestId], references: [id])
+
+  flagType    String   // LUHN_FAIL | TAMPER_DETECTED | SIGNATURE_INVALID | MRZ_CHECKSUM_FAIL | etc.
+  severity    String   // HIGH | MEDIUM | LOW
+  confidence  Float
+  description String
+  evidence    String?
+
+  createdAt DateTime @default(now())
+
+  @@index([requestId, severity])
+  @@map("fraud_flags")
+}
+
+// ─── Audit Log (APPEND-ONLY) ─────────────────────────────────────────────────
+
+model AuditLog {
+  id        String               @id @default(cuid())
+  requestId String?
+  request   VerificationRequest? @relation(fields: [requestId], references: [id])
+
+  event     String  // SUBMITTED | PROCESSING | COMPLETED | ACCESSED | DELETED
+  actor     String  // API key ID or user ID
+  ipAddress String
+  metadata  Json?
+
+  createdAt DateTime @default(now())
+
+  // Partitioned by month on createdAt in production (005_partitioning.sql)
+  @@index([requestId, createdAt(sort: Desc)])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ─── ML Model Versions ───────────────────────────────────────────────────────
+
+model MlModelVersion {
+  id           String   @id @default(cuid())
+  name         String   // classifier | tamper_cnn | face_detector | risk_scorer
+  version      String   // v2.1.0
+  checksum     String   // sha256 of .onnx file
+  accuracy     Float?
+  aucScore     Float?
+  isProduction Boolean  @default(false)
+  deployedAt   DateTime @default(now())
+  archivedAt   DateTime?
+
+  @@unique([name, version])
+  @@map("ml_model_versions")
+}
