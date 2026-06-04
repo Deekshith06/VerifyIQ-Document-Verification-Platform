@@ -5,7 +5,7 @@ services:
     env: docker
     dockerContext: verifyiq/apps/ml
     dockerfilePath: verifyiq/apps/ml/Dockerfile
-    plan: starter # ML models require some memory
+    plan: free # Changed to free to avoid payment prompts
     envVars:
       - key: AADHAAR_SALT
         sync: false # Set in dashboard
