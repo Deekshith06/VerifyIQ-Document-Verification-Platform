@@ -1,0 +1,51 @@
+services:
+  # The FastAPI Machine Learning Service
+  - type: web
+    name: verifyiq-ml
+    env: docker
+    dockerContext: verifyiq/apps/ml
+    dockerfilePath: verifyiq/apps/ml/Dockerfile
+    plan: starter # ML models require some memory
+    envVars:
+      - key: AADHAAR_SALT
+        sync: false # Set in dashboard
+      - key: MODEL_DIR
+        value: /app/models
+
+  # The NestJS API Backend
+  - type: web
+    name: verifyiq-api
+    env: docker
+    dockerContext: verifyiq/apps/api
+    dockerfilePath: verifyiq/apps/api/Dockerfile
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: verifyiq-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: verifyiq-redis
+          property: connectionString
+      - key: ML_SERVICE_URL
+        value: https://verifyiq-ml.onrender.com
+      - key: JWT_SECRET
+        generateValue: true
+      - key: API_KEY_SALT
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false # Set in dashboard to your Vercel URL (e.g. https://verifyiq.vercel.app)
+
+  # Redis Service
+  - type: redis
+    name: verifyiq-redis
+    plan: free
+
+databases:
+  # PostgreSQL Database
+  - name: verifyiq-db
+    databaseName: verifyiq
+    user: verifyiq
+    plan: free
