@@ -1,16 +1,5 @@
 services:
-  # The FastAPI Machine Learning Service
-  - type: web
-    name: verifyiq-ml
-    env: docker
-    dockerContext: verifyiq/apps/ml
-    dockerfilePath: verifyiq/apps/ml/Dockerfile
-    plan: free # Changed to free to avoid payment prompts
-    envVars:
-      - key: AADHAAR_SALT
-        sync: false # Set in dashboard
-      - key: MODEL_DIR
-        value: /app/models
+
 
   # The NestJS API Backend
   - type: web
@@ -29,8 +18,6 @@ services:
           type: redis
           name: verifyiq-redis
           property: connectionString
-      - key: ML_SERVICE_URL
-        value: https://verifyiq-ml.onrender.com
       - key: JWT_SECRET
         generateValue: true
       - key: API_KEY_SALT
