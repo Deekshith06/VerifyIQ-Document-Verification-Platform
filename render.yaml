@@ -42,6 +42,7 @@ services:
   - type: redis
     name: verifyiq-redis
     plan: free
+    ipAllowList: []
 
 databases:
   # PostgreSQL Database
