@@ -1,27 +1,29 @@
-# VerifyIQ — AI-Powered Document Intelligence Platform
+# VerifyIQ — Stateless Document Intelligence Platform
 
-**VerifyIQ** is a self-contained, offline-capable document verification and KYC fraud detection platform. It is an anonymous, stateless public website where documents are processed in memory, results are returned immediately, and no user account, upload archive, result history, audit feed, or dashboard database record is created by the default application path.
+**Live Demo:** [https://verify-iq-document-verification-pla-seven.vercel.app/](https://verify-iq-document-verification-pla-seven.vercel.app/)
+
+**VerifyIQ** is an anonymous, stateless document verification platform. Documents and details are processed purely in-memory using open-source mathematical algorithms. Results are returned immediately, and absolutely no user account, upload archive, or database record is ever created.
 
 ## Features
-- **5 Document Types**: Credit Card, Passport, Aadhaar, Voter ID, Driving Licence
-- **Explainable Results**: Every APPROVED / REJECTED / REVIEW verdict shows *why*
-- **Zero Retention**: Session-only processing; closing or refreshing the browser clears visible results
-- **No Accounts**: No login, dashboard identity, user history, or API-key requirement on the public verification path
-- **Offline-first AI**: All ML inference via ONNX Runtime on CPU — no cloud dependency
-- **Compliance-grade**: DPDP Act 2023 + PCI-DSS + GDPR data handling built-in
+- **5 Document Types**: Credit/Debit Cards (Luhn), Passports (MRZ), Aadhaar (Verhoeff), Voter ID (EPIC), and Driving Licence.
+- **Explainable Results**: Every PASS / FAIL verdict shows a transparent mathematical reasoning trail.
+- **Zero Retention**: 100% Session-only processing. Closing or refreshing the browser instantly and permanently clears all entered data.
+- **No Accounts Required**: No login walls, dashboard identities, user histories, or API-keys are required.
+- **Open Source Math**: Full logic source code is provided in the app so you can independently verify how the algorithms work locally.
 
 ## Tech Stack
-- **Frontend**: Next.js 14 (App Router)
-- **Backend API**: NestJS (Monolith)
-- **ML Service**: FastAPI with ONNX Runtime
-- **Database**: PostgreSQL 16 (via Prisma)
+- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS
+- **Deployment**: Vercel (Edge Network)
+- **Architecture**: 100% Stateless Web Client (Zero-Backend)
 
-## Setup & Running
-This repository uses a monorepo structure.
-
-1. Ensure you have Node.js, Python, and Docker installed.
-2. Install frontend and backend dependencies using `npm install`.
-3. Start the services (ML service, NestJS API, and Next.js frontend).
-4. Access the web app at `http://localhost:3000`.
-
-For detailed architecture, model specifications, and AI agent documentation, refer to the [AGENTS.md](./AGENTS.md) live specification file.
+## Setup & Running Locally
+1. Ensure you have Node.js installed (v20+).
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the Next.js frontend:
+   ```bash
+   npm run dev:web
+   ```
+4. Open your browser to `http://localhost:3000`.
