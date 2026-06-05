@@ -1,6 +1,6 @@
 # VerifyIQ — Stateless Document Intelligence Platform
 
-**Live Demo:** [https://verify-iq-document-verification-pla-seven.vercel.app/](https://verify-iq-document-verification-pla-seven.vercel.app/)
+**Live Demo:** [https://verifyiqdocument.vercel.app/](https://verifyiqdocument.vercel.app/)
 
 **VerifyIQ** is an anonymous, stateless document verification platform. Documents and details are processed purely in-memory using open-source mathematical algorithms. Results are returned immediately, and absolutely no user account, upload archive, or database record is ever created.
 
