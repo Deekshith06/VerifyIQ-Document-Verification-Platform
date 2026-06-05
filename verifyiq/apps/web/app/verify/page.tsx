@@ -4,7 +4,7 @@ import { demoDocuments } from "../lib/verification";
 
 export default function VerifyIndexPage() {
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-10 text-center">
         <ShieldCheck className="mx-auto h-12 w-12 text-stone-900" />
         <h1 className="mt-4 text-3xl font-bold tracking-tight text-stone-950 sm:text-4xl">
@@ -16,12 +16,12 @@ export default function VerifyIndexPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-5">
         {demoDocuments.map((document) => (
           <Link
             key={document.id}
             href={`/verify/${document.id}`}
-            className="group relative flex flex-col rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-stone-300 hover:shadow-md"
+            className="group relative flex flex-col justify-between rounded-2xl border border-stone-200 bg-white p-5 shadow-sm transition-all hover:border-stone-300 hover:shadow-md"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-600 group-hover:bg-stone-900 group-hover:text-white transition-colors">
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

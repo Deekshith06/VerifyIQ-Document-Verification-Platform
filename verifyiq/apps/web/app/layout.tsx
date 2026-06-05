@@ -15,7 +15,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-stone-50 select-none antialiased">
+        <div className="bg-emerald-600 px-4 py-2 text-center text-[13px] font-semibold tracking-wide text-white flex items-center justify-center gap-2">
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+          100% SECURE & STATELESS: All verifications run locally in your browser. No data is uploaded or saved.
+        </div>
         <header className="sticky top-0 z-50 border-b border-stone-200 bg-white/92 backdrop-blur">
           <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-6 px-4 sm:px-6 lg:px-8">
             <Link href="/dashboard" className="flex items-center gap-3">
@@ -32,6 +36,9 @@ export default function RootLayout({
               <Link href="/dashboard" className="rounded-md px-3 py-2 hover:bg-stone-100 hover:text-stone-950">
                 Dashboard
               </Link>
+              <Link href="/logic" className="rounded-md px-3 py-2 hover:bg-stone-100 hover:text-stone-950">
+                Logic Source
+              </Link>
               
               <div className="group relative">
                 <Link href="/verify" className="inline-flex items-center gap-1 rounded-md px-3 py-2 hover:bg-stone-100 hover:text-stone-950">
@@ -45,7 +52,7 @@ export default function RootLayout({
                     <div className="grid grid-cols-2 gap-2">
                       <Link href="/verify/credit-card" className="flex items-center gap-3 rounded-lg p-2 hover:bg-stone-50 transition-colors">
                         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-indigo-100 bg-indigo-50 text-indigo-600"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg></div>
-                        <div><p className="text-sm font-semibold text-stone-900">Credit Card</p></div>
+                        <div><p className="text-sm font-semibold text-stone-900">Credit / Debit Card</p></div>
                       </Link>
                       <Link href="/verify/passport" className="flex items-center gap-3 rounded-lg p-2 hover:bg-stone-50 transition-colors">
                         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-sky-100 bg-sky-50 text-sky-600"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" /></svg></div>

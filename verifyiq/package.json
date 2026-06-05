@@ -4,19 +4,14 @@
   "private": true,
   "description": "AI-Powered Document Intelligence Platform — Offline-first KYC fraud detection",
   "workspaces": [
-    "apps/*",
-    "libs/*"
+    "apps/*"
   ],
   "scripts": {
     "dev:web": "npm run dev --workspace=apps/web",
-    "dev:api": "npm run dev --workspace=apps/api",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "type-check": "turbo run type-check",
-    "db:migrate": "npm run migrate --workspace=apps/api",
-    "db:seed": "npm run seed --workspace=apps/api",
-    "db:studio": "npm run studio --workspace=apps/api"
+    "type-check": "turbo run type-check"
   },
   "devDependencies": {
     "turbo": "^1.13.0",

@@ -144,7 +144,7 @@ export const demoDocuments: DemoDocument[] = [
   },
   {
     id: "credit-card",
-    name: "Credit Card",
+    name: "Credit / Debit Card",
     shortName: "Card",
     holder: "Maya Sen",
     identifier: "4111 1111 1111 1120",
@@ -313,7 +313,7 @@ function licenceChecks(fields: Record<string, string>): VerificationCheck[] {
 }
 
 function cardChecks(fields: Record<string, string>): VerificationCheck[] {
-  const pan = onlyDigits(fields.pan ?? fields.displayed ?? "");
+  const pan = onlyDigits(fields.displayed ?? fields.pan ?? "");
   const expiry = fields.expiry ?? "";
   const [month, year] = expiry.split("/").map((part) => Number.parseInt(part, 10));
   const expiryYear = 2000 + (year || 0);

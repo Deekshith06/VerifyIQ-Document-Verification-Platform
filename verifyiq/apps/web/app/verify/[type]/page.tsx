@@ -17,6 +17,8 @@ import {
   parseMRZ,
 } from "../../lib/verification";
 
+import { DocumentPreview } from "../../components/DocumentPreview";
+
 const fieldConfig: Record<DocumentKind, Array<{ key: string; label: string; placeholder: string }>> = {
   passport: [
     { key: "mrz1", label: "MRZ line 1", placeholder: "P<UTO..." },
@@ -65,7 +67,16 @@ export default function VerifyTypePage({ params }: { params: { type: string } })
   }
 
   function updateManualField(key: string, value: string) {
-    setManualFields((current) => ({ ...current, [key]: value }));
+    let formattedValue = value;
+    if (key === "expiry") {
+      const cleaned = value.replace(/\D/g, "");
+      if (cleaned.length >= 3) {
+        formattedValue = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}`;
+      } else {
+        formattedValue = cleaned;
+      }
+    }
+    setManualFields((current) => ({ ...current, [key]: formattedValue }));
   }
 
   function run() {
@@ -93,17 +104,47 @@ export default function VerifyTypePage({ params }: { params: { type: string } })
         </div>
 
         <div className="mt-8">
+          <p className="text-sm font-semibold text-stone-800 mb-3">Original Reference Image</p>
+          <div className="w-full">
+            <DocumentPreview document={selectedDocument} />
+          </div>
+        </div>
+
+        <div className="mt-8">
           <p className="text-sm font-semibold text-stone-800">Manual input & extraction</p>
           <div className="mt-3 space-y-3">
             {fieldConfig[documentKind].map((field) => (
               <label key={field.key} className="block">
                 <span className="text-xs font-semibold text-stone-600">{field.label}</span>
-                <input
-                  value={manualFields[field.key] ?? ""}
-                  onChange={(event) => updateManualField(field.key, event.target.value)}
-                  placeholder={field.placeholder}
-                  className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none transition-colors focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
-                />
+                {field.key === "network" ? (
+                  <select
+                    value={manualFields[field.key] ?? field.placeholder}
+                    onChange={(event) => updateManualField(field.key, event.target.value)}
+                    className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none transition-colors focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
+                  >
+                    <option value="Visa">Visa</option>
+                    <option value="Mastercard">Mastercard</option>
+                    <option value="RuPay">RuPay</option>
+                    <option value="Amex">Amex</option>
+                  </select>
+                ) : (
+                  <input
+                    value={manualFields[field.key] ?? ""}
+                    onChange={(event) => updateManualField(field.key, event.target.value)}
+                    placeholder={field.placeholder}
+                    autoComplete="new-password"
+                    autoCorrect="off"
+                    spellCheck="false"
+                    data-form-type="other"
+                    data-lpignore="true"
+                    onCopy={(e) => e.preventDefault()}
+                    onPaste={(e) => e.preventDefault()}
+                    onCut={(e) => e.preventDefault()}
+                    onContextMenu={(e) => e.preventDefault()}
+                    onDragStart={(e) => e.preventDefault()}
+                    className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none transition-colors focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
+                  />
+                )}
               </label>
             ))}
           </div>
@@ -120,15 +161,6 @@ export default function VerifyTypePage({ params }: { params: { type: string } })
                </div>
             </div>
           )}
-        </div>
-
-        <div className="mt-6">
-          <p className="text-sm font-semibold text-stone-800">Local file</p>
-          <div className="mt-2 flex flex-col items-center justify-center rounded-lg border border-dashed border-stone-300 bg-stone-50 p-6 text-center cursor-not-allowed opacity-75">
-            <FileUp className="h-6 w-6 text-stone-400" aria-hidden="true" />
-            <span className="mt-2 text-sm font-semibold text-stone-900">Upload & Extract</span>
-            <span className="mt-1 text-xs text-stone-500">Offline AI models are currently disabled. This feature is coming soon.</span>
-          </div>
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-3">
@@ -151,9 +183,9 @@ export default function VerifyTypePage({ params }: { params: { type: string } })
         </div>
       </section>
 
-      <section className={`rounded-xl border p-5 shadow-sm sm:p-6 transition-colors duration-300 ${screenTone}`}>
+      <section className={`flex flex-col rounded-xl border p-5 shadow-sm sm:p-6 transition-colors duration-300 ${screenTone}`}>
         {!result ? (
-          <div className="grid min-h-[620px] place-items-center rounded-lg border border-dashed border-stone-300 bg-white/70 p-8 text-center backdrop-blur-sm">
+          <div className="flex flex-1 min-h-[300px] flex-col items-center justify-center rounded-lg border border-dashed border-stone-300 bg-white/70 p-8 text-center backdrop-blur-sm">
             <div>
               <FileUp className="mx-auto h-10 w-10 text-stone-400" aria-hidden="true" />
               <h2 className="mt-4 text-2xl font-semibold text-stone-950">Results appear here</h2>
@@ -163,14 +195,14 @@ export default function VerifyTypePage({ params }: { params: { type: string } })
             </div>
           </div>
         ) : (
-          <ResultView result={result} />
+          <ResultView result={result} extractedData={extractedData} />
         )}
       </section>
     </div>
   );
 }
 
-function ResultView({ result }: { result: VerificationResult }) {
+function ResultView({ result, extractedData }: { result: VerificationResult; extractedData: any }) {
   const verified = result.verdict === "verified";
 
   return (
@@ -182,7 +214,12 @@ function ResultView({ result }: { result: VerificationResult }) {
             {result.document.name}: {verified ? "Verified" : "Failed"}
           </h2>
           <p className="mt-2 fine-print text-sm text-stone-700">
-            {result.document.holder} - {result.document.identifier}
+            {result.document.id === "passport" ? (extractedData?.name || result.document.holder) + " - " : ""}
+            {result.document.id === "credit-card" && (result.document.fields.displayed || result.document.fields.pan || result.document.identifier)}
+            {result.document.id === "aadhaar" && (result.document.fields.number || result.document.fields.displayed || result.document.identifier)}
+            {result.document.id === "voter" && (result.document.fields.epic || result.document.identifier)}
+            {result.document.id === "licence" && (result.document.fields.number || result.document.identifier)}
+            {result.document.id === "passport" && (extractedData?.passportNumber || result.document.identifier)}
           </p>
         </div>
         <div className={`rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm ${verified ? "bg-emerald-600" : "bg-red-600"}`}>
